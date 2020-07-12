@@ -37,7 +37,7 @@ namespace Camelot
             Styles.Add(new DarkTheme());
         }
 
-        private void LoadLanguage()
+        private static void LoadLanguage()
         {
             var localizationService = Locator.Current.GetService<ILocalizationService>();
             var languageManager = Locator.Current.GetService<ILanguageManager>();
