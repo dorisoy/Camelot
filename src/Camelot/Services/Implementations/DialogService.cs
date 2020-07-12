@@ -115,7 +115,6 @@ namespace Camelot.Services.Implementations
             where TResult : DialogResultBase
         {
             var mainWindow = (MainWindow) _mainWindowProvider.GetMainWindow();
-            window.Owner = mainWindow;
 
             mainWindow.ShowOverlay();
             var result = await window.ShowDialog<TResult>(mainWindow);

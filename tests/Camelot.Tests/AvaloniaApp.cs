@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Logging.Serilog;
+using Avalonia.Headless;
 using Avalonia.ReactiveUI;
 using Avalonia.Threading;
 using Splat;
@@ -30,6 +30,7 @@ namespace Camelot.Tests
                 .Configure<App>()
                 .UsePlatformDetect()
                 .LogToDebug()
-                .UseReactiveUI();
+                .UseReactiveUI()
+                .UseHeadless();
     }
 }
