@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -17,20 +18,24 @@ namespace Camelot.Tests
 
         public static void RegisterDependencies() => Bootstrapper.Register(Locator.CurrentMutable, Locator.Current);
 
+        public static Window GetMainWindow() =>
+            ((IClassicDesktopStyleApplicationLifetime) Application.Current.ApplicationLifetime)
+            .MainWindow;
+
         public static void Stop()
         {
-            var window = ((IClassicDesktopStyleApplicationLifetime) Application.Current.ApplicationLifetime)
-                .MainWindow;
+            var window = GetMainWindow();
 
-            Dispatcher.UIThread.Post(window.Close);
+            PostAction(window.Close);
         }
+
+        public static void PostAction(Action action) => Dispatcher.UIThread.Post(action);
 
         private static AppBuilder BuildAvaloniaApp()
             => AppBuilder
                 .Configure<App>()
                 .UsePlatformDetect()
                 .LogToDebug()
-                .UseReactiveUI()
-                .UseHeadless();
+                .UseReactiveUI();
     }
 }
