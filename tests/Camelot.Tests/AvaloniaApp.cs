@@ -18,9 +18,10 @@ namespace Camelot.Tests
 
         public static void RegisterDependencies() => Bootstrapper.Register(Locator.CurrentMutable, Locator.Current);
 
-        public static Window GetMainWindow() =>
-            ((IClassicDesktopStyleApplicationLifetime) Application.Current.ApplicationLifetime)
-            .MainWindow;
+        public static Window GetMainWindow() => GetApp().MainWindow;
+
+        public static IClassicDesktopStyleApplicationLifetime GetApp() =>
+            (IClassicDesktopStyleApplicationLifetime) Application.Current.ApplicationLifetime;
 
         public static void Stop()
         {
@@ -34,6 +35,7 @@ namespace Camelot.Tests
         private static AppBuilder BuildAvaloniaApp()
             => AppBuilder
                 .Configure<App>()
+                .UseHeadless()
                 .UsePlatformDetect()
                 .LogToDebug()
                 .UseReactiveUI();

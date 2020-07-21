@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.LogicalTree;
 using Camelot.ViewModels.Implementations;
 using Camelot.ViewModels.Implementations.Menu;
 using Camelot.Views.Dialogs;
@@ -16,39 +15,51 @@ namespace Camelot.Tests
         [Fact]
         public async Task TestMainWindowLoading()
         {
-            AvaloniaApp.RegisterDependencies();
-            AvaloniaApp.Start();
+            await LoadAppAsync();
+            var window = AvaloniaApp.GetMainWindow();
 
-            await Task.Delay(LoadDelayMs);
+            Assert.NotNull(window);
         }
 
         [Fact]
         public async Task TestOpenSettings()
         {
-            AvaloniaApp.RegisterDependencies();
-            AvaloniaApp.Start();
-
-            await Task.Delay(LoadDelayMs);
+            await LoadAppAsync();
 
             var window = AvaloniaApp.GetMainWindow();
+            var openMenuTaskCompletionSource = new TaskCompletionSource<bool>();
             AvaloniaApp.PostAction(() =>
             {
                 var viewModel = (MainWindowViewModel) window.DataContext;
                 Assert.NotNull(viewModel);
                 var menuViewModel = (MenuViewModel) viewModel.MenuViewModel;
                 menuViewModel.OpenSettingsCommand.Execute(null);
+                openMenuTaskCompletionSource.SetResult(true);
             });
 
-            await Task.Delay(LoadDelayMs);
+            await openMenuTaskCompletionSource.Task;
 
             SettingsDialog dialog = null;
-            AvaloniaApp.PostAction(() => dialog = window.GetLogicalDescendants().OfType<SettingsDialog>().SingleOrDefault());
+            var getDialogTaskCompletionSource = new TaskCompletionSource<bool>();
+            AvaloniaApp.PostAction(() =>
+            {
+                dialog = AvaloniaApp.GetApp().Windows.OfType<SettingsDialog>().SingleOrDefault();
+                getDialogTaskCompletionSource.SetResult(true);
+            });
 
-            await Task.Delay(LoadDelayMs);
+            await getDialogTaskCompletionSource.Task;
 
             Assert.NotNull(dialog);
         }
 
         public void Dispose() => AvaloniaApp.Stop();
+
+        private static async Task LoadAppAsync()
+        {
+            AvaloniaApp.RegisterDependencies();
+            AvaloniaApp.Start();
+
+            await Task.Delay(LoadDelayMs);
+        }
     }
 }
