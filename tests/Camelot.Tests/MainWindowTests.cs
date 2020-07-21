@@ -1,10 +1,10 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Avalonia.Controls;
-using Avalonia.Input;
-using Avalonia.Interactivity;
 using Avalonia.LogicalTree;
+using Camelot.ViewModels.Implementations;
+using Camelot.ViewModels.Implementations.Menu;
+using Camelot.Views.Dialogs;
 using Xunit;
 
 namespace Camelot.Tests
@@ -31,22 +31,22 @@ namespace Camelot.Tests
             await Task.Delay(LoadDelayMs);
 
             var window = AvaloniaApp.GetMainWindow();
-            AvaloniaApp.PostAction(() => window.RaiseEvent(new KeyEventArgs {RoutedEvent = InputElement.KeyDownEvent, Key = Key.C, KeyModifiers = KeyModifiers.Alt }));
-            AvaloniaApp.PostAction(() => window.RaiseEvent(new KeyEventArgs {RoutedEvent = InputElement.KeyUpEvent, Key = Key.C, KeyModifiers = KeyModifiers.Alt }));
-            await Task.Delay(500);
-            var menu = window.GetLogicalDescendants().OfType<Menu>().First();
-            // AvaloniaApp.PostAction(() => menu.RaiseEvent(new KeyEventArgs {RoutedEvent = InputElement.KeyDownEvent, Key = Key.S }));
-            // AvaloniaApp.PostAction(() => menu.RaiseEvent(new KeyEventArgs {RoutedEvent = InputElement.KeyUpEvent, Key = Key.S }));
-            // AvaloniaApp.PostAction(() => menu.RaiseEvent(new KeyEventArgs {RoutedEvent = InputElement.KeyDownEvent, Key = Key.Enter }));
-            // AvaloniaApp.PostAction(() => menu.RaiseEvent(new KeyEventArgs {RoutedEvent = InputElement.KeyUpEvent, Key = Key.Enter }));
-            var item = menu.GetLogicalDescendants().OfType<MenuItem>().ToArray()[3];
+            AvaloniaApp.PostAction(() =>
             {
-                AvaloniaApp.PostAction(() => item.RaiseEvent(new RoutedEventArgs{RoutedEvent = InputElement.PointerPressedEvent}));
-                AvaloniaApp.PostAction(() => item.RaiseEvent(new RoutedEventArgs{RoutedEvent = InputElement.PointerReleasedEvent}));
-            }
-            // var menuItem = menu.GetLogicalDescendants().OfType<MenuItem>().ToArray()[3];
-            // AvaloniaApp.PostAction(() => menuItem.RaiseEvent(new RoutedEventArgs{RoutedEvent = InputElement.TappedEvent}));
-            await Task.Delay(500000);
+                var viewModel = (MainWindowViewModel) window.DataContext;
+                Assert.NotNull(viewModel);
+                var menuViewModel = (MenuViewModel) viewModel.MenuViewModel;
+                menuViewModel.OpenSettingsCommand.Execute(null);
+            });
+
+            await Task.Delay(LoadDelayMs);
+
+            SettingsDialog dialog = null;
+            AvaloniaApp.PostAction(() => dialog = window.GetLogicalDescendants().OfType<SettingsDialog>().SingleOrDefault());
+
+            await Task.Delay(LoadDelayMs);
+
+            Assert.NotNull(dialog);
         }
 
         public void Dispose() => AvaloniaApp.Stop();
